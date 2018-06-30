@@ -74,7 +74,7 @@ class Login extends Component {
 			let token = await AsyncStorage.getItem('token')
 			if(token) this.props.navigation.navigate('Home')
 		}catch(err){
-			console.log(err)
+			console.log(err.response)
 		}
 	}
 
