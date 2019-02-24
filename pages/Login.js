@@ -2,118 +2,118 @@ import React, { Component } from 'react'
 import {
   StyleSheet,
   Text,
-	View,
-	TextInput,
-	TouchableOpacity,
-	AsyncStorage,
-	Alert
+  View,
+  TextInput,
+  TouchableOpacity,
+  AsyncStorage,
+  Alert
 } from 'react-native'
 import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
 
 const signIn = gql`
-	mutation signIn($email: String, $password: String){
-		signIn(email: $email, password: $password){
-			name
-			_id
-			token
-		}
-	}
+  mutation signIn($email: String, $password: String){
+    signIn(email: $email, password: $password){
+      name
+      _id
+      token
+    }
+  }
 `
 
 class Login extends Component {
-	constructor(){
-		super()
-		this.state = {
-			email: '',
-			password: '',
-		}
+  constructor(){
+    super()
+    this.state = {
+      email: '',
+      password: '',
+     }
+   }
+
+   next = () => {
+		 this.passInput.focus()
 	}
 
-	next = () => {
-		this.passInput.focus()
-	}
+	 signUp = () => {
+		 his.props.navigation.navigate('SignUp')
+	 }
 
-	signUp = () => {
-		this.props.navigation.navigate('SignUp')
-	}
+	 login = async () => {
+		 let { email, password } = this.state
+		 try{
+			 let result = await this.props.mutate({
+				 variables: { 
+					 email,
+					 password
+				 }
+			 })
+			 let { token, _id, name } = result.data.signIn
+			 if(token){
+				 try{
+					 await AsyncStorage.setItem('token', token)
+					 await AsyncStorage.setItem('userId', _id)
+					 this.props.navigation.navigate('Home')
+				 }catch(err){
+					 console.log(err)
+				 }
+			 }
+		 }catch(err){
+			 Alert.alert(
+				 'Failed To Login',
+				 'Username or password wrong',
+				 [
+					 {text: 'OK'},
+				 ],
+				 { cancelable: false }
+			 )
+		 }
+	 }
 
-	login = async () => {
-		let { email, password } = this.state
-		try{
-			let result = await this.props.mutate({
-				variables: { 
-					email,
-					password
-				}
-			})
-			let { token, _id, name } = result.data.signIn
-			if(token){
-				try{
-					await AsyncStorage.setItem('token', token)
-					await AsyncStorage.setItem('userId', _id)
-					this.props.navigation.navigate('Home')
-				}catch(err){
-					console.log(err)
-				}
-			}
-		}catch(err){
-			Alert.alert(
-				'Failed To Login',
-				'Username or password wrong',
-				[
-				  {text: 'OK'},
-				],
-				{ cancelable: false }
-			)
-		}
-	}
+	 componentDidMount = async () => {
+		 try{
+			 let token = await AsyncStorage.getItem('token')
+			 if(token) this.props.navigation.navigate('Home')
+		 }catch(err){
+			 console.log(err)
+		 }
+	 }
 
-	componentDidMount = async () => {
-		try{
-			let token = await AsyncStorage.getItem('token')
-			if(token) this.props.navigation.navigate('Home')
-		}catch(err){
-			console.log(err)
-		}
-	}
+	 render(){
+		 return (
+			 <View style={{ flex: 1,  backgroundColor: '#F5FCFF' }}>
+			 <View style={styles.container}>
+			
+			 <Text style={styles.welcome}>
+			 Hacktivgram
+			 </Text>
+			 
+			 <TextInput
+			 	style={styles.input}
+			 	value={this.state.email}
+			 	onChangeText={email => this.setState({email})}
+				placeholder="email@example.com"
+				autoCapitalize="none"
+				keyboardType="email-address"
+				returnKeyType="next"
+				onSubmitEditing={this.next}
+				underlineColorAndroid='transparent'
+				password={true}
+				blurOnSubmit={false}	
+			 />
 
-	render(){
-		return (
-			<View style={{ flex: 1,  backgroundColor: '#F5FCFF' }}>
-				<View style={styles.container}>
-
-					<Text style={styles.welcome}>
-					Hacktivgram
-					</Text>
-					
-					<TextInput
-						style={styles.input}
-						value={this.state.email}
-						onChangeText={email => this.setState({email})}
-						placeholder="email@example.com"
-						autoCapitalize="none"
-						keyboardType="email-address"
-						returnKeyType="next"
-						onSubmitEditing={this.next}
-						underlineColorAndroid='transparent'
-						password={true}
-						blurOnSubmit={false}
-					/>
-
-					<TextInput
-						style={styles.input}
-						value={this.state.password}
-						onChangeText={password => this.setState({password})}
-						ref={ref => {this.passInput = ref}}
-						autoCapitalize="none"
-						placeholder="password"
-						returnKeyType="send"
-						onSubmitEditing={this.submit}
-						underlineColorAndroid='transparent'
-						secureTextEntry={true}
-						blurOnSubmit={true}
-					/>
+			<TextInput
+				style={styles.input}
+				value={this.state.password}
+				onChangeText={password => this.setState({password})}
+				ref={ref => {this.passInput = ref}}
+				autoCapitalize="none"
+				placeholder="password"
+				returnKeyType="send"
+				onSubmitEditing={this.submit}
+				underlineColorAndroid='transparent'
+				secureTextEntry={true}
+				blurOnSubmit={true}
+			/>
 
 					<TouchableOpacity onPress={ this.login } style={ styles.btnStyle }  >
 						<Text>
