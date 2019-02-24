@@ -171,4 +171,4 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
 		fontSize: 16,
 	},
-  });
+  }); 
